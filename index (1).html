@@ -1,0 +1,1319 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="ByteQuest: Los Guardianes del Código — recurso educativo digital gamificado para aprender informática básica: hardware, software, redes, algoritmos y seguridad digital.">
+<meta name="author" content="Proyecto académico · Universidad Mariano Gálvez de Guatemala">
+<meta name="theme-color" content="#070b12">
+<meta name="license" content="CC BY-SA 4.0">
+<title>ByteQuest: Los Guardianes del Código</title>
+<style>
+  :root{
+    --bg:#070b12; --bg2:#0d1420; --panel:#121a28; --panel2:#0d1522; --line:#22304a;
+    --neon:#39ff14; --cyan:#22d3ee; --violet:#a855f7; --gold:#fbbf24; --red:#ef4444;
+    --txt:#e8eefb; --mut:#93a7c4; --white:#ffffff;
+    --font:'Segoe UI',system-ui,-apple-system,'Helvetica Neue',Roboto,Arial,sans-serif;
+    --r:16px; --sh:0 12px 34px rgba(0,0,0,.38);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:var(--font); color:var(--txt); min-height:100vh; line-height:1.55;
+    background:
+      radial-gradient(circle at 18% -5%, #17233a 0%, transparent 45%),
+      radial-gradient(circle at 92% 8%, #1a1230 0%, transparent 40%),
+      var(--bg);
+    overflow-x:hidden;
+  }
+  body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background-image:linear-gradient(rgba(57,255,20,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(34,211,238,.035) 1px,transparent 1px);
+    background-size:44px 44px;
+    mask-image:radial-gradient(circle at 50% 20%,#000 0%,transparent 80%);
+    -webkit-mask-image:radial-gradient(circle at 50% 20%,#000 0%,transparent 80%);}
+  ::selection{background:rgba(57,255,20,.28)}
+
+  a{color:var(--cyan)}
+  a:hover{color:var(--neon)}
+  :focus-visible{outline:3px solid var(--gold);outline-offset:3px;border-radius:8px}
+  .skip{position:absolute;left:-9999px;top:0;background:var(--gold);color:#241a00;padding:10px 16px;z-index:99;font-weight:700;border-radius:0 0 10px 0}
+  .skip:focus{left:0}
+
+  .wrap{max-width:1080px;margin:0 auto;padding:18px 18px 10px;position:relative;z-index:1}
+  .screen{display:none}
+  .screen.on{display:block;animation:fade .38s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+  /* ---------- HUD ---------- */
+  .hud{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;
+    background:linear-gradient(180deg,rgba(21,30,45,.96),rgba(13,20,32,.96));
+    border:1px solid var(--line);border-radius:14px;padding:11px 14px;margin-bottom:14px;
+    position:sticky;top:8px;z-index:20;backdrop-filter:blur(10px);box-shadow:var(--sh)}
+  .hud .grp{display:flex;gap:8px 16px;align-items:center;flex-wrap:wrap}
+  .chip{display:inline-flex;gap:6px;align-items:center;font-size:13px;color:var(--mut);white-space:nowrap}
+  .chip b{color:var(--txt);font-size:15px}
+  .hearts{letter-spacing:2px;font-size:16px}
+  .combo{color:var(--gold);font-weight:700}
+  .bar{width:100%;height:9px;background:#0a101c;border-radius:99px;overflow:hidden;border:1px solid var(--line)}
+  .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--neon),var(--cyan));width:0;transition:width .35s ease}
+  .timer{height:6px;border-radius:99px;background:#0a101c;overflow:hidden;margin:10px 0 16px;border:1px solid var(--line)}
+  .timer i{display:block;height:100%;background:linear-gradient(90deg,var(--cyan),var(--gold));width:100%;transition:width .12s linear}
+  .timer.low i{background:linear-gradient(90deg,var(--gold),var(--red))}
+
+  /* ---------- Botones ---------- */
+  button{font-family:inherit;cursor:pointer;border:none;border-radius:12px;font-size:15px;font-weight:700;
+    padding:13px 22px;transition:transform .16s,box-shadow .16s,background .16s,color .16s;color:#04120a;letter-spacing:.2px}
+  .btn-main{background:linear-gradient(135deg,var(--neon),var(--cyan));box-shadow:0 0 22px rgba(57,255,20,.28)}
+  .btn-main:hover{transform:translateY(-2px);box-shadow:0 0 32px rgba(57,255,20,.45)}
+  .btn-ghost{background:transparent;border:1px solid var(--line);color:var(--txt)}
+  .btn-ghost:hover{border-color:var(--cyan);color:var(--cyan)}
+  .btn-hint{background:linear-gradient(135deg,var(--gold),#f59e0b);color:#241a00;padding:10px 16px;font-size:13.5px}
+  .btn-hint:disabled{opacity:.35;cursor:not-allowed;transform:none}
+  .btn-sm{padding:9px 14px;font-size:13px}
+  .row{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px;align-items:center}
+  .row.center{justify-content:center}
+  .cta-row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:26px}
+
+  /* ---------- Hero ---------- */
+  .hero{text-align:center;padding:30px 12px 22px}
+  .eyebrow{display:inline-block;font-size:11.5px;letter-spacing:2.6px;text-transform:uppercase;color:var(--cyan);
+    border:1px solid var(--line);border-radius:99px;padding:6px 14px;background:rgba(34,211,238,.06);margin-bottom:16px}
+  .hero h1{font-size:clamp(38px,8vw,68px);font-weight:800;letter-spacing:2px;line-height:1.05;
+    background:linear-gradient(95deg,var(--neon),var(--cyan) 55%,var(--violet));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    filter:drop-shadow(0 0 26px rgba(57,255,20,.28))}
+  .subline{letter-spacing:7px;text-transform:uppercase;font-size:clamp(10px,2.2vw,13px);color:var(--neon);margin-top:6px;font-weight:700}
+  .lead{max-width:730px;margin:20px auto 0;color:#c6d5ea;font-size:15.5px}
+  .grid5{display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:10px;margin:26px 0 0}
+  .pillar{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 8px;text-align:center;transition:.2s}
+  .pillar:hover{border-color:var(--cyan);transform:translateY(-3px)}
+  .pillar .ic{font-size:25px}
+  .pillar .nm{font-size:12px;color:var(--mut);margin-top:6px;letter-spacing:.3px}
+
+  /* ---------- Paneles ---------- */
+  h2.sec{font-size:21px;margin:0 0 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  h3.sub{font-size:15.5px;margin:18px 0 8px;color:var(--cyan)}
+  .card{background:linear-gradient(180deg,rgba(21,30,45,.9),rgba(15,22,35,.94));border:1px solid var(--line);
+    border-radius:18px;padding:22px;box-shadow:var(--sh)}
+  .card + .card{margin-top:16px}
+  .purpose{margin-top:22px;text-align:left}
+  .purpose p{color:#c6d5ea;font-size:15px}
+  .ticks{list-style:none;display:grid;gap:9px;margin-top:14px}
+  .ticks li{position:Relative;padding-left:26px;color:#c6d5ea;font-size:14.5px}
+  .ticks li::before{content:"✔";position:absolute;left:0;color:var(--neon);font-weight:700}
+  .bullets{color:#c6d5ea;padding-left:20px;display:grid;gap:8px;font-size:14.5px}
+  .note{background:rgba(34,211,238,.07);border:1px solid rgba(34,211,238,.35);border-radius:12px;padding:13px 15px;
+    font-size:13.8px;color:#cfe4f2;margin-top:14px}
+  .note b{color:var(--cyan)}
+  .warn{background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.4)}
+  .warn b{color:var(--gold)}
+
+  /* ---------- Mapa ---------- */
+  .maps{display:grid;grid-template-columns:repeat(auto-fit,minmax(196px,1fr));gap:14px}
+  .map{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px;position:relative;overflow:hidden;
+    transition:transform .18s,border-color .18s}
+  .map::after{content:"";position:absolute;inset:0;background:linear-gradient(135deg,var(--ac) 0%,transparent 50%);opacity:.10;pointer-events:none}
+  .map .ic{font-size:29px}
+  .map h3{font-size:15.5px;margin:9px 0 4px}
+  .map .wm{font-size:12px;color:var(--mut)}
+  .map .st{margin-top:12px;font-size:12.5px;font-weight:700;letter-spacing:.3px}
+  .st.lock{color:var(--mut)} .st.done{color:var(--neon)} .st.ready{color:var(--cyan)} .st.cur{color:var(--gold)}
+  .map.locked{opacity:.55}
+  .map.clickable{cursor:pointer}
+  .map.clickable:hover{transform:translateY(-3px);border-color:var(--cyan)}
+
+  /* ---------- Preguntas ---------- */
+  .card.q{position:relative}
+  .qtag{font-size:11.5px;letter-spacing:2px;text-transform:uppercase;color:var(--cyan);margin-bottom:8px;font-weight:700}
+  .qtext{font-size:20px;font-weight:700;margin-bottom:18px;line-height:1.4}
+  .opts{display:grid;gap:10px}
+  .opt{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:14px 16px;color:var(--txt);
+    text-align:left;font-weight:500;font-size:15px;transition:.15s;display:flex;gap:11px;align-items:flex-start}
+  .opt .key{flex:0 0 22px;height:22px;border-radius:6px;border:1px solid var(--line);display:grid;place-items:center;
+    font-size:11.5px;color:var(--mut);font-weight:700;margin-top:1px}
+  .opt:hover:not(:disabled){border-color:var(--cyan);background:#132239;transform:translateX(3px)}
+  .opt.ok{border-color:var(--neon);background:rgba(57,255,20,.13);color:#c8ffbb}
+  .opt.ok .key{border-color:var(--neon);color:var(--neon)}
+  .opt.bad{border-color:var(--red);background:rgba(239,68,68,.13);color:#fca5a5}
+  .opt.bad .key{border-color:var(--red);color:#fca5a5}
+  .opt:disabled{cursor:default}
+  .opts.tf .opt{font-weight:700;justify-content:center;text-align:center}
+  .ordwrap{display:flex;flex-direction:column;gap:8px}
+  .orditem{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:11px 12px;
+    display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:14.5px;transition:.15s}
+  .orditem .num{color:var(--gold);font-weight:800;font-size:12.5px;min-width:18px}
+  .orditem .lbl{flex:1}
+  .ordbtns{display:flex;gap:5px}
+  .ordbtns button{background:#16223a;border:1px solid var(--line);color:var(--mut);border-radius:8px;
+    padding:5px 9px;font-size:13px;line-height:1}
+  .ordbtns button:hover:not(:disabled){color:var(--cyan);border-color:var(--cyan)}
+  .ordbtns button:disabled{opacity:.28;cursor:not-allowed}
+  .orditem.ok{border-color:var(--neon);background:rgba(57,255,20,.09)}
+  .orditem.bad{border-color:var(--red);background:rgba(239,68,68,.09)}
+  .fb{margin-top:16px;border-radius:12px;padding:14px 16px;font-size:14.5px;display:none}
+  .fb.show{display:block;animation:fade .3s}
+  .fb.good{background:rgba(57,255,20,.09);border:1px solid rgba(57,255,20,.55)}
+  .fb.bad{background:rgba(239,68,68,.09);border:1px solid rgba(239,68,68,.55)}
+  .fb.hint{background:rgba(251,191,36,.09);border:1px solid rgba(251,191,36,.5)}
+  .fb .tip{color:var(--mut);margin-top:7px;font-size:13.6px}
+  .fb .pts{color:var(--gold);font-weight:700}
+
+  /* ---------- Resultados ---------- */
+  .medal{text-align:center;padding:14px 0 4px}
+  .medal .big{font-size:66px;line-height:1}
+  .medal h2{font-size:clamp(24px,5vw,34px);margin:8px 0 4px}
+  .medal .muted{color:var(--mut);font-size:14px}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(142px,1fr));gap:12px;margin-top:20px}
+  .stat{background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:14px;text-align:center}
+  .stat b{display:block;font-size:23px;color:var(--neon)}
+  .stat span{font-size:12px;color:var(--mut)}
+  .badges{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:18px}
+  .badge{background:linear-gradient(135deg,#1c2637,#0e1523);border:1px solid rgba(251,191,36,.6);border-radius:12px;
+    padding:10px 14px;font-size:13px;box-shadow:0 0 18px rgba(251,191,36,.10)}
+  .theme-map{margin-top:14px;display:grid;gap:9px}
+  .tmrow{display:flex;align-items:center;gap:10px;font-size:13.5px;flex-wrap:wrap}
+  .tmrow .lbl{width:186px;color:var(--mut)}
+  .tmrow .track{flex:1;min-width:120px;height:12px;background:#0a101c;border-radius:99px;overflow:hidden;border:1px solid var(--line)}
+  .tmrow .track i{display:block;height:100%;border-radius:99px;transition:width .6s ease}
+  .tmrow .pct{width:104px;text-align:right;font-variant-numeric:tabular-nums;color:var(--mut)}
+
+  /* ---------- Tablas ---------- */
+  table.data{width:100%;border-collapse:collapse;margin-top:12px;font-size:13.8px}
+  table.data th,table.data td{border:1px solid var(--line);padding:9px 11px;text-align:left;vertical-align:top}
+  table.data th{background:rgba(34,211,238,.08);color:var(--cyan);font-size:12.5px;letter-spacing:.4px;text-transform:uppercase}
+  table.data td b{color:var(--gold)}
+  .table-scroll{overflow-x:auto}
+
+  /* ---------- Licencia ---------- */
+  .lic-box{display:flex;gap:18px;align-items:center;flex-wrap:wrap;justify-content:space-between;
+    border:1px solid rgba(226,232,240,.28);border-radius:14px;padding:16px;background:rgba(255,255,255,.03);margin-top:16px}
+  .lic-badge{display:inline-flex;text-decoration:none;line-height:0;transition:.2s}
+  .lic-badge:hover{transform:scale(1.04)}
+  .lic-txt{font-size:13.5px;color:#c6d5ea;max-width:560px}
+  .lic-txt b{color:var(--white)}
+  .lic-mini{display:inline-flex;align-items:center;gap:8px;text-decoration:none;color:var(--mut);font-size:12.5px}
+  .lic-mini:hover{color:var(--cyan)}
+  .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-top:14px}
+  .info{background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:15px}
+  .info h4{font-size:13.5px;color:var(--cyan);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:8px}
+  .info p,.info li{font-size:13.8px;color:#c6d5ea}
+  .info ul{padding-left:18px;display:grid;gap:5px}
+  .cite{background:#0a101c;border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:13px;
+    color:#c6d5ea;margin-top:10px;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;line-height:1.6}
+
+  /* ---------- Footer / toast ---------- */
+  .foot{border-top:1px solid var(--line);margin-top:30px;padding:22px 4px 30px;color:var(--mut);font-size:12.5px;
+    display:flex;gap:14px;justify-content:space-between;align-items:center;flex-wrap:wrap}
+  .foot .fx{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+  .toast{position:fixed;top:16px;left:50%;transform:translateX(-50%) translateY(-160%);background:#16223a;
+    border:1px solid var(--gold);border-radius:12px;padding:12px 20px;z-index:60;transition:.4s;font-size:14px;
+    box-shadow:var(--sh);max-width:92vw;text-align:center}
+  .toast.show{transform:translateX(-50%) translateY(0)}
+  .kbd{font-family:ui-monospace,Consolas,monospace;font-size:12px;border:1px solid var(--line);
+    border-bottom-width:2px;border-radius:6px;padding:2px 6px;color:var(--mut);background:#0a101c}
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+  @media (max-width:640px){
+    .wrap{padding:12px 12px 8px}
+    .hud{position:static;padding:10px}
+    .hud .grp{gap:6px 12px}
+    .chip{font-size:12px}
+    .card{padding:17px}
+    .qtext{font-size:18px}
+    .tmrow .lbl{width:100%}
+    .tmrow .pct{width:auto}
+    .foot{flex-direction:column;align-items:flex-start}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{animation:none!important;transition:none!important}
+    html{scroll-behavior:auto}
+  }
+  @media print{
+    body{background:#fff;color:#111}
+    body::before{display:none}
+    .hud,.toast,.noprint,button{display:none!important}
+    .card{background:#fff;border-color:#bbb;box-shadow:none}
+    a{color:#0645ad}
+  }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Saltar al contenido principal</a>
+<div class="wrap" id="main">
+  <!-- ================= INICIO ================= -->
+  <section class="screen on" id="s-start">
+    <div class="hero">
+      <div class="eyebrow">Recurso educativo digital gamificado · HTML5</div>
+      <h1>ByteQuest</h1>
+      <div class="subline">Los Guardianes del Código</div>
+      <p class="lead">En el <b>Reino Digital de Byteville</b>, el villano <b>Glitch</b> ha corrompido los cinco pilares del conocimiento.
+      Encarna a <b>Byte</b>, aprendiz de guardián, y restaura el orden superando 5 mundos temáticos y la Batalla Final:
+      un juego de aventura y acertijos para aprender Informática básica.</p>
+      <div class="grid5" aria-label="Cinco ejes temáticos del recurso">
+        <div class="pillar"><div class="ic">🖥️</div><div class="nm">Hardware</div></div>
+        <div class="pillar"><div class="ic">💾</div><div class="nm">Software</div></div>
+        <div class="pillar"><div class="ic">🌐</div><div class="nm">Redes</div></div>
+        <div class="pillar"><div class="ic">🧩</div><div class="nm">Algoritmos</div></div>
+        <div class="pillar"><div class="ic">🛡️</div><div class="nm">Seguridad</div></div>
+      </div>
+    </div>
+
+    <div class="card purpose">
+      <h2 class="sec">🎯 ¿Qué es este recurso y para qué sirve?</h2>
+      <p><b>ByteQuest</b> es un sitio web interactivo de una sola página que enseña y evalúa contenidos de Informática
+      mediante mecánicas de juego: misiones por niveles, vidas, pistas, combos, insignias y una batalla final.
+      Está pensado para <b>estudiantes de nivel medio y básico</b> (13–18 años) y para <b>docentes</b> que necesiten
+      un recurso listo para aplicar en clase, en laboratorio o como refuerzo autónomo.</p>
+
+      <h3 class="sub">Objetivo general</h3>
+      <p>Consolidar los aprendizajes básicos de Informática —hardware, software, redes, algoritmos y seguridad digital—
+      a través de una experiencia gamificada que ofrezca retroalimentación inmediata y evidencias de desempeño
+      por tema.</p>
+
+      <h3 class="sub">Objetivos específicos</h3>
+      <ul class="ticks">
+        <li>Distinguir componentes de hardware, sus funciones y las unidades de medida de la información.</li>
+        <li>Clasificar el software de sistema frente al software de aplicación y aplicar la gestión de archivos.</li>
+        <li>Reconocer tipos de redes, la función de Internet y los servicios de comunicación (correo, navegador).</li>
+        <li>Ordenar procesos, interpretar diagramas de flujo y aplicar pensamiento computacional y estructuras de control.</li>
+        <li>Adoptar prácticas de seguridad digital: contraseñas robustas, verificación en dos pasos y detección de phishing.</li>
+        <li>Recibir evidencias de desempeño por eje temático para la toma de decisiones pedagógicas.</li>
+      </ul>
+
+      <h3 class="sub">¿Cómo se usa? (3 pasos)</h3>
+      <ul class="bullets">
+        <li><b>1.</b> Pulsa <b>Iniciar misión</b> y escribe tu nombre (opcional, para el reporte).</li>
+        <li><b>2.</b> Avanza por el mapa: cada mundo tiene 4 misiones y un <b>reto jefe</b>. Lee la retroalimentación después de cada respuesta.</li>
+        <li><b>3.</b> Al terminar la Batalla Final obtendrás una medalla, tus insignias y un <b>reporte de aprendizaje</b> imprimible o descargable en PDF.</li>
+      </ul>
+
+      <div class="note"><b>Consejo para el docente:</b> el botón «Acerca del recurso» contiene la guía didáctica,
+      la tabla de contenidos por mundo, la rúbrica de evaluación y los créditos y la licencia.</div>
+
+      <div class="cta-row">
+        <button class="btn-main" onclick="openStart()">▶ Iniciar misión</button>
+        <button class="btn-ghost" onclick="showRules()">📖 Reglas del juego</button>
+        <button class="btn-ghost" onclick="showAbout()">ℹ️ Acerca del recurso</button>
+      </div>
+    </div>
+
+    <footer class="foot">
+      <div class="fx">
+        <span><b>ByteQuest: Los Guardianes del Código</b> · v2.0 (versión final)</span>
+      </div>
+      <div class="fx">
+        <a class="lic-mini" href="https://creativecommons.org/licenses/by-sa/4.0/deed.es" target="_blank" rel="noopener license">
+          <svg width="58" height="20" viewBox="0 0 120 42" role="img" aria-label="Licencia Creative Commons BY-SA 4.0"><g fill="none" stroke="#e2e8f0" stroke-width="2.6"><circle cx="21" cy="21" r="18"/><circle cx="93" cy="21" r="18"/></g><text x="21" y="28" text-anchor="middle" font-family="Arial,sans-serif" font-size="18" font-weight="bold" fill="#e2e8f0">CC</text><text x="47" y="27" text-anchor="middle" font-family="Arial,sans-serif" font-size="15" font-weight="bold" fill="#e2e8f0">BY</text><text x="93" y="27" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="bold" fill="#e2e8f0">SA</text></svg>
+          CC BY-SA 4.0
+        </a>
+        <span>· Universidad Mariano Gálvez de Guatemala</span>
+      </div>
+    </footer>
+  </section>
+
+  <!-- ================= REGLAS ================= -->
+  <section class="screen" id="s-rules">
+    <div class="card">
+      <div class="qtag">Manual del guardián</div>
+      <h2 class="sec">📖 Reglas y mecánicas del juego</h2>
+      <ul class="bullets">
+        <li><b>Progresión lineal:</b> para acceder al mundo siguiente debes superar el <b>reto jefe</b> del mundo actual.</li>
+        <li><b>Vidas:</b> 3 por mundo. Cada respuesta incorrecta consume una vida. Si llegan a 0, el mundo se reinicia
+            (conservas puntaje e insignias ya obtenidas).</li>
+        <li><b>Pistas:</b> 2 por mundo. Usar una descuenta <b>−25 puntos</b> de la pregunta en curso, pero <b>nunca</b> quita vidas.</li>
+        <li><b>Combo:</b> los aciertos consecutivos aumentan el multiplicador de <b>×1.0 hasta ×2.0</b> (+0.25 por acierto).
+            Un error lo reinicia a ×1.0.</li>
+        <li><b>Bonus de tiempo:</b> <b>+50 puntos</b> si resuelves en 30 segundos o menos.</li>
+        <li><b>Eficiencia:</b> <b>+25 puntos</b> si aciertas sin haber usado la pista de esa pregunta.</li>
+        <li><b>Jefe de mundo:</b> <b>+200 puntos</b> al superarlo. <b>Batalla Final:</b> 100 puntos por acierto.</li>
+        <li><b>Medallas finales:</b> Explorador (hasta 4 000) · Guardián (4 001–6 000) · Leyenda del Código (≥ 6 001).</li>
+      </ul>
+
+      <h3 class="sub">Tipos de misión</h3>
+      <ul class="bullets">
+        <li><b>Selección múltiple:</b> elige una opción. También puedes usar las teclas <span class="kbd">1</span>–<span class="kbd">4</span>.</li>
+        <li><b>Verdadero / falso:</b> decide si el enunciado es correcto.</li>
+        <li><b>Ordenamiento:</b> usa las flechas <span class="kbd">▲</span> <span class="kbd">▼</span> de cada tarjeta para ordenar los elementos y luego pulsa <b>Validar orden</b>.</li>
+      </ul>
+
+      <div class="note"><b>Accesibilidad:</b> el recurso funciona con teclado, respeta la preferencia de movimiento reducido,
+      usa alto contraste y textos alternativos, y puede imprimirse sin perder legibilidad.</div>
+
+      <div class="row">
+        <button class="btn-main" onclick="openStart()">▶ Iniciar misión</button>
+        <button class="btn-ghost" onclick="go('s-start')">← Volver al inicio</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= MAPA ================= -->
+  <section class="screen" id="s-map">
+    <div class="hud">
+      <div class="grp">
+        <div class="chip">🧠 Puntaje <b id="h-score">0</b></div>
+        <div class="chip">🏅 Insignias <b id="h-badges">0/6</b></div>
+        <div class="chip combo">🔥 Combo <b id="h-combo">×1.0</b></div>
+      </div>
+      <div class="grp">
+        <button class="btn-ghost btn-sm" onclick="showRules()">Reglas</button>
+        <button class="btn-ghost btn-sm" onclick="showAbout()">Acerca de</button>
+      </div>
+    </div>
+    <h2 class="sec">🗺️ Mapa del Reino Digital de Byteville</h2>
+    <p style="color:var(--mut);font-size:14px;margin:-6px 0 16px">Avanza en orden. Cada mundo se desbloquea al superar el reto jefe del anterior.</p>
+    <div class="maps" id="map-grid"></div>
+    <div class="note" id="map-tip">Pulsa un mundo disponible para comenzar. Tu progreso se guarda automáticamente en este navegador.</div>
+  </section>
+
+  <!-- ================= MISIÓN ================= -->
+  <section class="screen" id="s-mission">
+    <div class="hud">
+      <div class="grp">
+        <div class="chip">🌍 <b id="m-world">—</b></div>
+        <div class="chip">🎯 <b id="m-step">1/4</b></div>
+      </div>
+      <div class="grp">
+        <div class="chip hearts" id="m-lives" aria-label="vidas restantes">❤️❤️❤️</div>
+        <div class="chip">🧠 <b id="m-score">0</b></div>
+        <div class="chip combo">🔥 <b id="m-combo">×1.0</b></div>
+        <button class="btn-hint" id="btn-hint" onclick="useHint()">💡 Pista (<span id="m-hints">2</span>)</button>
+      </div>
+    </div>
+    <div class="bar" style="margin-bottom:6px"><i id="m-progress"></i></div>
+    <div class="timer" id="m-timerwrap"><i id="m-timerbar"></i></div>
+    <div class="card q">
+      <div class="qtag" id="q-tag">Misión</div>
+      <div class="qtext" id="q-text">—</div>
+      <div id="q-body"></div>
+      <div class="fb" id="q-fb" role="status" aria-live="polite"></div>
+      <div class="row" id="q-actions"></div>
+    </div>
+    <div class="row">
+      <button class="btn-ghost btn-sm" onclick="confirmExit()">← Salir al mapa</button>
+    </div>
+  </section>
+
+  <!-- ================= ACERCA / LICENCIA ================= -->
+  <section class="screen" id="s-about">
+    <div class="card">
+      <div class="qtag">Documentación pedagógica</div>
+      <h2 class="sec">ℹ️ Acerca del recurso</h2>
+      <div class="grid2">
+        <div class="info">
+          <h4>Ficha técnica</h4>
+          <ul>
+            <li><b>Título:</b> ByteQuest: Los Guardianes del Código</li>
+            <li><b>Tipo:</b> recurso educativo digital gamificado (sitio web HTML5 de una sola página)</li>
+            <li><b>Área:</b> Informática / Tecnología</li>
+            <li><b>Destinatarios:</b> estudiantes de 13 a 18 años; docentes de Informática</li>
+            <li><b>Duración:</b> 25–40 minutos por sesión completa</li>
+            <li><b>Modalidad:</b> individual o por parejas; presencial o virtual</li>
+            <li><b>Requisitos:</b> navegador actualizado. No requiere instalación, registro ni conexión permanente.</li>
+            <li><b>Versión:</b> 2.0 — versión final (noviembre de 2026)</li>
+          </ul>
+        </div>
+        <div class="info">
+          <h4>Enfoque pedagógico</h4>
+          <ul>
+            <li>Diseño instruccional con el modelo <b>ADDIE</b> (análisis, diseño, desarrollo, implementación y evaluación).</li>
+            <li>Aprendizaje basado en juego con <b>retroalimentación inmediata</b> y explicación del porqué de cada respuesta.</li>
+            <li>Progresión de dificultad y <b>evaluación formativa</b> por eje temático.</li>
+            <li>Elementos de gamificación: niveles, vidas, pistas, combos, insignias, medallas y reporte final.</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3 class="sub">Contenidos por mundo</h3>
+      <div class="table-scroll">
+        <table class="data">
+          <thead><tr><th>Mundo</th><th>Eje temático</th><th>Contenidos</th><th>Evidencia</th></tr></thead>
+          <tbody>
+            <tr><td><b>M1</b></td><td>Núcleo de Hardware</td><td>CPU, periféricos de entrada y salida, memoria RAM vs. almacenamiento, unidades de medida (bit, byte, KB, MB, GB)</td><td>Insignia «Forjador de Hardware»</td></tr>
+            <tr><td><b>M2</b></td><td>Softwarelandia</td><td>Software de sistema y de aplicación, gestión de archivos, proceso de guardado</td><td>Insignia «Arquitecto de Software»</td></tr>
+            <tr><td><b>M3</b></td><td>Redes del Reino</td><td>Internet, navegador web, LAN/WAN/MAN, correo electrónico (CC y CCO)</td><td>Insignia «Conector de Redes»</td></tr>
+            <tr><td><b>M4</b></td><td>Código y Algoritmos</td><td>Algoritmo, pensamiento computacional, diagramas de flujo, bucles y condicionales</td><td>Insignia «Mentalista del Código»</td></tr>
+            <tr><td><b>M5</b></td><td>Seguridad Digital</td><td>Malware, contraseñas seguras, verificación en dos pasos, phishing</td><td>Insignia «Escudo Digital»</td></tr>
+            <tr><td><b>BF</b></td><td>Batalla Final vs. Glitch</td><td>Integración de los cinco ejes</td><td>Insignia «Vencedor de Glitch» + medalla</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="sub">Guía didáctica: sugerencia de aplicación en clase</h3>
+      <ul class="bullets">
+        <li><b>Inicio (5 min):</b> presenta el reto narrativo y las reglas. Pregunta qué saben de cada uno de los cinco pilares.</li>
+        <li><b>Desarrollo (20–25 min):</b> estudiantes juegan de forma individual o en parejas. El docente circula y registra dudas frecuentes.</li>
+        <li><b>Cierre (10 min):</b> cada estudiante muestra su medalla y descarga su reporte. Se comentan en plenaria los temas con menor precisión.</li>
+        <li><b>Evaluación:</b> usa la precisión por tema del reporte como evaluación formativa; la rúbrica siguiente orienta la valoración del desempeño.</li>
+      </ul>
+
+      <h3 class="sub">Rúbrica de evaluación del desempeño</h3>
+      <div class="table-scroll">
+        <table class="data">
+          <thead><tr><th>Nivel</th><th>Criterio de logro</th><th>Puntaje</th></tr></thead>
+          <tbody>
+            <tr><td><b>Explorador</b></td><td>1–2 temas con precisión ≥ 70 %; reconoce conceptos básicos con apoyo de pistas.</td><td>Hasta 4 000</td></tr>
+            <tr><td><b>Guardián</b></td><td>3–4 temas con precisión ≥ 80 %; resuelve la mayoría de retos sin pistas.</td><td>4 001–6 000</td></tr>
+            <tr><td><b>Leyenda del Código</b></td><td>5 temas con precisión ≥ 90 % y Batalla Final superada; aplica y relaciona los contenidos.</td><td>≥ 6 001</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="sub">Atribuciones y créditos</h3>
+      <div class="info">
+        <ul>
+          <li><b>Autoría y diseño:</b> proyecto académico del curso de Informática — Universidad Mariano Gálvez de Guatemala.</li>
+          <li><b>Contenidos:</b> elaboración propia a partir de conceptos estándar de alfabetización digital; no reproduce material de terceros.</li>
+          <li><b>Tipografía:</b> fuentes del sistema (Segoe UI, system-ui, Roboto, Arial). No se distribuyen archivos de fuentes.</li>
+          <li><b>Iconografía:</b> emojis del sistema operativo (Unicode). Sin iconos con licencia externa.</li>
+          <li><b>Código:</b> HTML, CSS y JavaScript escritos para este recurso, sin bibliotecas de terceros.</li>
+        </ul>
+      </div>
+
+      <h2 class="sec" style="margin-top:26px">📄 Licencia Creative Commons</h2>
+      <div class="lic-box">
+        <a class="lic-badge" href="https://creativecommons.org/licenses/by-sa/4.0/deed.es" target="_blank" rel="noopener license" aria-label="Ver el resumen de la licencia CC BY-SA 4.0">
+          <svg width="176" height="62" viewBox="0 0 176 62" role="img" aria-label="Creative Commons BY-SA 4.0">
+            <rect x="1" y="1" width="174" height="60" rx="8" fill="#0a101c" stroke="#e2e8f0" stroke-width="1.5"/>
+            <g fill="none" stroke="#39ff14" stroke-width="2.4">
+              <circle cx="27" cy="25" r="13"/><circle cx="67" cy="25" r="13"/>
+            </g>
+            <text x="27" y="30" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="13" font-weight="bold" fill="#39ff14">CC</text>
+            <text x="47" y="30" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="bold" fill="#e2e8f0">BY</text>
+            <text x="67" y="30" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="bold" fill="#39ff14">SA</text>
+            <text x="88" y="30" font-family="Arial,Helvetica,sans-serif" font-size="13" font-weight="bold" fill="#e2e8f0">4.0</text>
+            <text x="8" y="52" font-family="Arial,Helvetica,sans-serif" font-size="7.4" fill="#93a7c4">Creative Commons Atribución-CompartirIgual 4.0</text>
+          </svg>
+        </a>
+        <div class="lic-txt">
+          <b>ByteQuest: Los Guardianes del Código</b> © 2026, proyecto académico — Universidad Mariano Gálvez de Guatemala.
+          Se distribuye bajo la licencia <b>Creative Commons Atribución-CompartirIgual 4.0 Internacional (CC BY-SA 4.0)</b>.
+          Puedes copiar, redistribuir, adaptar y construir sobre este material, incluso con fines comerciales,
+          siempre que <b>cites la autoría</b> y <b>compartas las obras derivadas bajo la misma licencia</b>.
+          <div class="row" style="margin-top:10px">
+            <a class="btn-ghost btn-sm" style="text-decoration:none;display:inline-block;padding:9px 14px;border-radius:12px;border:1px solid var(--line);color:var(--txt);font-size:13px;font-weight:700" href="https://creativecommons.org/licenses/by-sa/4.0/deed.es" target="_blank" rel="noopener license">Resumen de la licencia</a>
+            <a class="btn-ghost btn-sm" style="text-decoration:none;display:inline-block;padding:9px 14px;border-radius:12px;border:1px solid var(--line);color:var(--txt);font-size:13px;font-weight:700" href="https://creativecommons.org/licenses/by-sa/4.0/legalcode.es" target="_blank" rel="noopener license">Texto legal completo</a>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="sub">Cómo citar este recurso (APA 7)</h3>
+      <div class="cite">
+        Proyecto académico de Informática. (2026). <i>ByteQuest: Los Guardianes del Código</i> [Recurso educativo digital gamificado]. Universidad Mariano Gálvez de Guatemala. CC BY-SA 4.0.
+      </div>
+      <div class="cite">
+        ByteQuest: Los Guardianes del Código © 2026 por Universidad Mariano Gálvez de Guatemala se distribuye bajo CC BY-SA 4.0.
+        Para ver una copia de esta licencia, visita https://creativecommons.org/licenses/by-sa/4.0/deed.es
+      </div>
+
+      <div class="note warn"><b>Nota sobre buenas prácticas de licencia:</b> al reutilizar, indica el título del recurso, la autoría,
+      el enlace al sitio original y la licencia, y señala qué cambios realizaste. La cláusula <b>SA</b> obliga a liberar
+      las versiones adaptadas con la misma licencia; no permite añadir restricciones adicionales.</div>
+
+      <div class="row">
+        <button class="btn-main" onclick="openStart()">▶ Iniciar misión</button>
+        <button class="btn-ghost" onclick="go('s-start')">← Volver al inicio</button>
+      </div>
+    </div>
+
+    <footer class="foot">
+      <div class="fx"><span><b>ByteQuest</b> · v2.0 (versión final) · CC BY-SA 4.0</span></div>
+      <div class="fx"><a class="lic-mini" href="https://creativecommons.org/licenses/by-sa/4.0/deed.es" target="_blank" rel="noopener license">© 2026 · Algunos derechos reservados</a></div>
+    </footer>
+  </section>
+
+  <!-- ================= RESULTADOS ================= -->
+  <section class="screen" id="s-results">
+    <div class="card">
+      <div class="medal">
+        <div class="big" id="r-icon">🏅</div>
+        <h2 id="r-medal">—</h2>
+        <div class="muted" id="r-sub"></div>
+        <div class="muted" id="r-player" style="margin-top:6px"></div>
+      </div>
+      <div class="stats">
+        <div class="stat"><b id="r-score">0</b><span>Puntaje total</span></div>
+        <div class="stat"><b id="r-acc">0%</b><span>Precisión global</span></div>
+        <div class="stat"><b id="r-time">0s</b><span>Tiempo medio</span></div>
+        <div class="stat"><b id="r-hints">0</b><span>Pistas usadas</span></div>
+      </div>
+      <div class="badges" id="r-badges"></div>
+
+      <h2 class="sec" style="margin-top:28px">🧭 Mapa de temas dominados</h2>
+      <div class="theme-map" id="r-thememap"></div>
+
+      <div class="note" id="r-feedback"></div>
+
+      <div class="row center" style="margin-top:24px">
+        <button class="btn-main" onclick="downloadReport()">⬇ Descargar reporte de aprendizaje (PDF)</button>
+        <button class="btn-ghost" onclick="restartAll()">↺ Jugar de nuevo</button>
+        <button class="btn-ghost" onclick="showAbout()">ℹ️ Acerca del recurso</button>
+      </div>
+    </div>
+
+    <footer class="foot">
+      <div class="fx"><span><b>ByteQuest</b> · Reporte generado localmente en tu navegador · CC BY-SA 4.0</span></div>
+      <div class="fx"><a class="lic-mini" href="https://creativecommons.org/licenses/by-sa/4.0/deed.es" target="_blank" rel="noopener license">© 2026 · Universidad Mariano Gálvez de Guatemala</a></div>
+    </footer>
+  </section>
+
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<!-- Diálogo para el nombre del jugador -->
+<div id="name-modal" style="display:none;position:fixed;inset:0;background:rgba(3,6,12,.82);z-index:80;place-items:center;padding:20px;backdrop-filter:blur(4px)">
+  <div class="card" style="max-width:420px;width:100%">
+    <div class="qtag">Identificación</div>
+    <h2 class="sec" style="font-size:18px">¿Cómo te llamas, guardián?</h2>
+    <p style="color:var(--mut);font-size:13.8px;margin-bottom:12px">Es opcional: el nombre solo aparece en tu reporte de aprendizaje y no se envía a ningún servidor.</p>
+    <label for="name-input" class="sr-only">Nombre del estudiante</label>
+    <input id="name-input" type="text" maxlength="40" placeholder="Nombre y apellido (opcional)"
+      style="width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:#0a101c;color:var(--txt);font-family:inherit;font-size:15px">
+    <div class="row">
+      <button class="btn-main" onclick="beginGame()">▶ Comenzar</button>
+      <button class="btn-ghost" onclick="beginGame(true)">Omitir</button>
+    </div>
+  </div>
+</div>
+<script>
+/* =====================================================================
+   ByteQuest: Los Guardianes del Código — v2.0 (versión final)
+   Recurso educativo digital gamificado · HTML5 + CSS + JavaScript puro
+   Licencia: CC BY-SA 4.0 · Universidad Mariano Gálvez de Guatemala
+   Sin dependencias externas. Todos los datos se procesan en el navegador.
+   ===================================================================== */
+
+/* ==================== DATOS DEL JUEGO ==================== */
+const WORLD_DATA = [
+  {
+    id:'M1', name:'Núcleo de Hardware', icon:'🖥️', accent:'#39ff14', wm:'Núcleo de Hardware',
+    intro:'El corazón energético de Byteville se ha apagado. Restaura los componentes físicos.',
+    missions:[
+      {t:'mc', q:'¿Cuál es la función principal de la CPU (Unidad Central de Proceso)?',
+        o:['Ejecutar instrucciones y procesar datos','Almacenar archivos de forma permanente','Mostrar imágenes en el monitor','Conectar la computadora a Internet'], a:0,
+        tip:'La CPU es el «cerebro»: interpreta y ejecuta las instrucciones de los programas.'},
+      {t:'tf', q:'La memoria RAM conserva los datos aunque se apague la computadora.',
+        a:1,
+        tip:'Falso. La RAM es volátil: su contenido se pierde al cortar la energía. El almacenamiento (disco, SSD, USB) sí conserva los datos.'},
+      {t:'order', q:'Ordena estas unidades de almacenamiento de MENOR a MAYOR capacidad.',
+        items:['Bit','Byte','Kilobyte (KB)','Megabyte (MB)','Gigabyte (GB)'], tip:'1 byte = 8 bits y cada unidad multiplica por ~1000 la anterior.'},
+      {t:'mc', q:'¿Cuál de los siguientes es un periférico de ENTRADA?',
+        o:['Monitor','Impresora','Teclado','Parlante'], a:2,
+        tip:'Los periféricos de entrada envían datos HACIA la computadora: teclado, mouse, escáner.'}
+    ],
+    boss:{q:'RETO JEFE · El Guardián del Núcleo: ¿Qué conjunto describe MEJOR la relación entre memoria RAM y almacenamiento?',
+      o:['La RAM guarda datos temporalmente y el almacenamiento los conserva a largo plazo','Ambas guardan datos solo mientras hay energía','El almacenamiento es más rápido que la RAM','La RAM sirve para imprimir y el disco para procesar'], a:0,
+      tip:'RAM = memoria volátil de trabajo; disco/SSD = almacenamiento persistente.'}
+  },
+  {
+    id:'M2', name:'Softwarelandia', icon:'💾', accent:'#22d3ee', wm:'Softwarelandia',
+    intro:'La biblioteca mágica se ha desordenado. Reorganiza el software del reino.',
+    missions:[
+      {t:'mc', q:'¿Cuál es un ejemplo de software de SISTEMA?',
+        o:['Microsoft Word','Windows / Linux','WhatsApp','Google Chrome'], a:1,
+        tip:'El software de sistema gestiona el hardware: sistemas operativos como Windows, Linux o Android.'},
+      {t:'tf', q:'WhatsApp y Google Chrome son ejemplos de software de aplicación.',
+        a:0,
+        tip:'Verdadero. Son programas de aplicación: resuelven tareas concretas para el usuario sobre la base que da el sistema operativo.'},
+      {t:'mc', q:'¿Para qué sirve principalmente la gestión de archivos?',
+        o:['Organizar, nombrar y almacenar documentos y carpetas','Aumentar la velocidad del procesador','Conectar la computadora a la red eléctrica','Diseñar páginas web'], a:0,
+        tip:'Carpetas y nombres de archivo permiten organizar y recuperar la información.'},
+      {t:'order', q:'Ordena el proceso lógico para guardar un documento nuevo.',
+        items:['Crear el documento','Elegir el formato/software','Guardar con un nombre','Seleccionar la carpeta destino'], tip:'Primero se crea, luego se define el formato, se nombra y se ubica en una carpeta.'}
+    ],
+    boss:{q:'RETO JEFE · El Bibliotecario Digital: clasifica correctamente: ¿cuál combinación separa SOFTWARE DE SISTEMA y SOFTWARE DE APLICACIÓN?',
+      o:['Sistema: Android / Aplicación: Excel','Sistema: Excel / Aplicación: Android','Sistema: Netflix / Aplicación: Windows','Sistema: Chrome / Aplicación: Linux'], a:0,
+      tip:'Sistema = base que gestiona el hardware (SO). Aplicación = programas de uso concreto (Excel, Chrome).'}
+  },
+  {
+    id:'M3', name:'Redes del Reino', icon:'🌐', accent:'#a855f7', wm:'Redes del Reino',
+    intro:'Las aldeas quedaron incomunicadas. Restablece las conexiones entre ellas.',
+    missions:[
+      {t:'mc', q:'¿Qué es Internet?',
+        o:['Una red mundial de redes interconectadas','Un programa instalado en la computadora','Un tipo de memoria RAM','Un antivirus de pago'], a:0,
+        tip:'Internet es una red de redes global que usa protocolos comunes (TCP/IP).'},
+      {t:'mc', q:'¿Cuál es la función de un navegador web?',
+        o:['Solicitar, interpretar y mostrar páginas web','Almacenar archivos en la nube','Editar imágenes profesionalmente','Administrar la contraseña del WiFi'], a:0,
+        tip:'El navegador (Chrome, Firefox, Edge) interpreta HTML/CSS/JS y muestra los sitios.'},
+      {t:'tf', q:'Una red LAN cubre áreas geográficas extensas, como varios países.',
+        a:1,
+        tip:'Falso. La LAN es una red local (casa, aula, oficina). Las redes extensas son WAN, como Internet.'},
+      {t:'mc', q:'¿Qué red cubre un área geográfica pequeña como una casa u oficina?',
+        o:['WAN','LAN','Internet','MAN'], a:1,
+        tip:'LAN = red local pequeña; WAN = red amplia (países); MAN = red metropolitana.'}
+    ],
+    boss:{q:'RETO JEFE · El Guardián de las Redes: en el correo electrónico, ¿qué campo se usa para enviar una copia VISIBLE a otros destinatarios?',
+      o:['Asunto (Subject)','CC (Con Copia)','CCO (Copia Oculta)','Cuerpo del mensaje'], a:1,
+      tip:'CC muestra los demás destinatarios; CCO los oculta.'}
+  },
+  {
+    id:'M4', name:'Código y Algoritmos', icon:'🧩', accent:'#fbbf24', wm:'Código y Algoritmos',
+    intro:'Descifra los acertijos lógicos que sellan la puerta del pensamiento computacional.',
+    missions:[
+      {t:'mc', q:'¿Qué es un algoritmo?',
+        o:['Una secuencia ordenada y finita de pasos para resolver un problema','Un lenguaje de programación específico','Un tipo de cable de red','Una marca de computadora'], a:0,
+        tip:'Algoritmo = pasos ordenados, precisos y finitos que llevan a una solución.'},
+      {t:'order', q:'Ordena las etapas del pensamiento computacional para resolver un problema.',
+        items:['Descomponer el problema','Reconocer patrones','Abstraer lo esencial','Diseñar el algoritmo'], tip:'Descomponer → reconocer patrones → abstraer → diseñar el algoritmo.'},
+      {t:'mc', q:'¿A qué elemento del diagrama de flujo corresponde el rombo ◇?',
+        o:['Proceso','Entrada/Salida','Decisión (condición)','Inicio/Fin'], a:2,
+        tip:'El rombo es la DECISIÓN: plantea una condición con dos salidas (sí/no).'},
+      {t:'tf', q:'Una variable sirve para guardar un valor que puede cambiar durante la ejecución del programa.',
+        a:0,
+        tip:'Verdadero. La variable es un espacio de memoria con nombre cuyo contenido puede variar.'}
+    ],
+    boss:{q:'RETO JEFE · El Oráculo del Código: ¿qué estructura representa «repetir mientras se cumpla una condición»?',
+      o:['Condicional simple (si)','Bucle o ciclo (mientras)','Declaración de variable','Comentario'], a:1,
+      tip:'El ciclo «mientras» (while) repite instrucciones mientras la condición sea verdadera.'}
+  },
+  {
+    id:'M5', name:'Seguridad Digital', icon:'🛡️', accent:'#ef4444', wm:'Seguridad Digital',
+    intro:'Neutraliza las trampas de Glitch y protege los datos del reino.',
+    missions:[
+      {t:'mc', q:'¿Qué es el malware?',
+        o:['Software malicioso diseñado para dañar o robar información','Un tipo de hardware','Una red social','Una contraseña segura'], a:0,
+        tip:'Malware = virus, troyanos, ransomware… software creado para causar daño.'},
+      {t:'mc', q:'¿Cuál es una contraseña más SEGURA?',
+        o:['123456','password','Byte#2026!Segura','nombre-de-mi-mascota'], a:2,
+        tip:'Una buena contraseña mezcla mayúsculas, minúsculas, números y símbolos, y no es una palabra del diccionario.'},
+      {t:'mc', q:'¿Qué práctica protege mejor tus datos personales?',
+        o:['Compartir tu contraseña con amigos','Usar la misma contraseña siempre','Activar la verificación en dos pasos','Abrir cualquier enlace desconocido'], a:2,
+        tip:'La verificación en dos pasos (2FA) añade una barrera extra de seguridad.'},
+      {t:'tf', q:'Si un sitio web conocido pide tu contraseña por correo electrónico, es una práctica normal y segura.',
+        a:1,
+        tip:'Falso. Ninguna institución legítima solicita contraseñas por correo: es una señal típica de phishing.'}
+    ],
+    boss:{q:'RETO JEFE · El Guardián de la Seguridad: un correo pide «urgente» tus datos bancarios por un enlace. ¿Qué haces?',
+      o:['Clic en el enlace para ver el mensaje','Enviar los datos para no perder la oferta','No hacer clic, reportarlo como phishing y eliminarlo','Reenviarlo a todos mis contactos'], a:2,
+      tip:'Los datos bancarios nunca se piden por correo: es phishing. No hagas clic y reporta.'}
+  }
+];
+
+const FINAL_BATTLE = [
+  {q:'Glitch ataca: ¿qué componente ejecuta las instrucciones del sistema operativo?',
+   o:['La CPU','El monitor','El teclado','El router'], a:0,
+   tip:'La CPU ejecuta las instrucciones; el sistema operativo las organiza.'},
+  {q:'Glitch ataca: ¿cuál es software de aplicación?',
+   o:['Windows','Linux','Microsoft Excel','Android'], a:2,
+   tip:'Excel es aplicación; Windows, Linux y Android son sistemas operativos.'},
+  {q:'Glitch ataca: ¿qué dispositivo permite conectar varias computadoras en una LAN?',
+   o:['Impresora','Switch / Router','Escáner','Parlante'], a:1,
+   tip:'El switch conmuta tramas dentro de la red local; el router la conecta con otras redes.'},
+  {q:'Glitch ataca: ¿qué estructura repite una acción un número definido de veces?',
+   o:['Condición si','Bucle para (for)','Variable','Función'], a:1,
+   tip:'El bucle «para» (for) repite un número conocido de veces.'},
+  {q:'Glitch ataca: ¿qué significa «cifrado» en seguridad digital?',
+   o:['Borrar archivos','Convertir datos en un código ilegible sin la clave','Duplicar la información','Comprimir imágenes'], a:1,
+   tip:'El cifrado transforma los datos; solo quien posee la clave puede leerlos.'}
+];
+
+const BADGE_DEFS = [
+  {id:'hardware', ic:'⚙️', nm:'Forjador de Hardware'},
+  {id:'software', ic:'💽', nm:'Arquitecto de Software'},
+  {id:'redes', ic:'📡', nm:'Conector de Redes'},
+  {id:'algoritmos', ic:'🧠', nm:'Mentalista del Código'},
+  {id:'seguridad', ic:'🛡️', nm:'Escudo Digital'},
+  {id:'final', ic:'⚔️', nm:'Vencedor de Glitch'}
+];
+
+const LIC = {
+  short:'CC BY-SA 4.0',
+  url:'https://creativecommons.org/licenses/by-sa/4.0/deed.es',
+  legal:'https://creativecommons.org/licenses/by-sa/4.0/legalcode.es',
+  owner:'proyecto académico — Universidad Mariano Gálvez de Guatemala',
+  year:'2026',
+  title:'ByteQuest: Los Guardianes del Código'
+};
+
+/* ==================== ESTADO ==================== */
+const S = {
+  player:'', score:0, combo:0, maxCombo:0, lives:3, hints:2,
+  worldIdx:0, step:0, inBoss:false, inFinal:false, finalIdx:0,
+  correct:0, total:0, times:[], hintsUsed:0, usedHintThisQ:false,
+  badges:[], themeHits:{}, answered:false
+};
+WORLD_DATA.forEach(w=>S.themeHits[w.id]={ok:0,total:0});
+S.themeHits['BF']={ok:0,total:0};
+
+let timerId=null, tStart=0;
+const tLimit=30;
+
+/* ==================== NAVEGACIÓN ==================== */
+function go(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+  const el=document.getElementById(id);
+  if(el) el.classList.add('on');
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(timerId && id!=='s-mission'){clearInterval(timerId);timerId=null;}
+}
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('show'),2400);
+}
+function showRules(){go('s-rules');}
+function showAbout(){go('s-about');}
+
+/* ==================== NOMBRE DEL JUGADOR ==================== */
+function openStart(){
+  const m=document.getElementById('name-modal');
+  m.style.display='grid';
+  const inp=document.getElementById('name-input');
+  inp.value=S.player||'';
+  setTimeout(()=>inp.focus(),80);
+}
+function beginGame(skip){
+  const m=document.getElementById('name-modal');
+  const inp=document.getElementById('name-input');
+  if(!skip){ S.player=(inp.value||'').trim().slice(0,40); }
+  m.style.display='none';
+  startGame();
+}
+
+/* ==================== INICIO / REINICIO ==================== */
+function startGame(){
+  Object.assign(S,{score:0,combo:0,maxCombo:0,lives:3,hints:2,worldIdx:0,step:0,inBoss:false,
+    inFinal:false,finalIdx:0,correct:0,total:0,times:[],hintsUsed:0,badges:[],answered:false});
+  WORLD_DATA.forEach(w=>S.themeHits[w.id]={ok:0,total:0});
+  S.themeHits['BF']={ok:0,total:0};
+  clearSave();
+  renderMap(); go('s-map');
+  toast('¡Misión iniciada! Pulsa el Núcleo de Hardware para empezar.');
+}
+function restartAll(){ startGame(); }
+
+/* ==================== MAPA ==================== */
+function renderMap(){
+  const g=document.getElementById('map-grid'); g.innerHTML='';
+  WORLD_DATA.forEach((w,i)=>{
+    const unlocked = i<=S.worldIdx;
+    const done = S.badges.includes(BADGE_DEFS[i].id);
+    const cur = i===S.worldIdx && !done;
+    const st = done?'✔ Completado':(cur?'▶ Disponible':'🔒 Bloqueado');
+    const cls = done?'done':(cur?'cur':'lock');
+    const card=document.createElement('div');
+    card.className='map'+(unlocked?'':' locked');
+    card.style.setProperty('--ac',w.accent);
+    card.innerHTML=`<div class="ic">${w.icon}</div><h3>${w.name}</h3>
+      <div class="wm">${w.missions.length} misiones + 1 reto jefe</div>
+      <div class="st ${cls}">${st}</div>`;
+    if(unlocked && !done){
+      card.classList.add('clickable');
+      card.setAttribute('role','button');
+      card.tabIndex=0;
+      const enter=()=>enterWorld(i);
+      card.onclick=enter;
+      card.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();enter();}};
+    }
+    g.appendChild(card);
+  });
+
+  const fb=document.createElement('div');
+  const allDone = S.badges.includes('seguridad');
+  const fbDone = S.badges.includes('final');
+  fb.className='map'; fb.style.setProperty('--ac','#fbbf24');
+  fb.innerHTML=`<div class="ic">⚔️</div><h3>Batalla Final vs. Glitch</h3>
+    <div class="wm">5 retos integradores</div>
+    <div class="st ${fbDone?'done':(allDone?'ready':'lock')}">${fbDone?'✔ Superada':(allDone?'★ Disponible':'🔒 Requiere los 5 mundos')}</div>`;
+  if(allDone && !fbDone){
+    fb.classList.add('clickable');
+    fb.setAttribute('role','button'); fb.tabIndex=0;
+    fb.onclick=startFinal;
+    fb.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();startFinal();}};
+  }
+  g.appendChild(fb);
+  updateHUD();
+}
+
+function updateHUD(){
+  const set=(id,v)=>{const e=document.getElementById(id); if(e) e.textContent=v;};
+  set('h-score',S.score);
+  set('h-badges',S.badges.length+'/6');
+  set('h-combo','×'+comboMult().toFixed(1));
+  set('m-score',S.score);
+  set('m-combo','×'+comboMult().toFixed(1));
+}
+function comboMult(){ return Math.min(2.0, 1.0 + S.combo*0.25); }
+
+/* ==================== MUNDO / MISIONES ==================== */
+function enterWorld(i){
+  S.worldIdx=i; S.step=0; S.inBoss=false; S.inFinal=false; S.lives=3; S.hints=2;
+  S.themeHits[WORLD_DATA[i].id]={ok:0,total:0};
+  showMission();
+}
+function currentWorld(){ return WORLD_DATA[S.worldIdx]; }
+
+function showMission(){
+  const w=currentWorld();
+  const totalSteps=w.missions.length+1;
+  document.getElementById('m-world').textContent=w.name;
+  document.getElementById('m-step').textContent=(S.step+1)+'/'+totalSteps;
+  document.getElementById('m-lives').textContent='❤️'.repeat(Math.max(0,S.lives))+'🖤'.repeat(Math.max(0,3-S.lives));
+  document.getElementById('m-hints').textContent=S.hints;
+  document.getElementById('btn-hint').disabled = S.hints<=0;
+  document.getElementById('m-progress').style.width=(S.step/totalSteps*100)+'%';
+  document.getElementById('m-timerwrap').style.display='block';
+  go('s-mission');
+  if(S.inBoss){ renderQuestion(w.boss,true,'RETO JEFE · '+w.wm); }
+  else { renderQuestion(w.missions[S.step],false,'Misión '+(S.step+1)+' de '+w.missions.length); }
+}
+
+/* ==================== MOTOR DE PREGUNTAS ==================== */
+function renderQuestion(q,isBoss,tag){
+  S.usedHintThisQ=false;
+  S.answered=false;
+  document.getElementById('q-tag').textContent=tag;
+  document.getElementById('q-text').textContent=q.q;
+  const body=document.getElementById('q-body'); body.innerHTML='';
+  const actions=document.getElementById('q-actions'); actions.innerHTML='';
+  const fb=document.getElementById('q-fb'); fb.className='fb'; fb.innerHTML='';
+
+  if(q.t==='order'){
+    // orden inicial mezclado de forma determinista (siempre el mismo por pregunta)
+    const base=q.items.map((it,i)=>({it,i}));
+    const mixed=base.slice().sort((a,b)=>((a.i*7+3)%base.length)-((b.i*7+3)%base.length));
+    const wrap=document.createElement('div'); wrap.className='ordwrap'; wrap.id='ordwrap';
+    mixed.forEach((o,pos)=>{
+      const d=document.createElement('div'); d.className='orditem'; d.dataset.val=o.it;
+      d.innerHTML=`<span class="num">${pos+1}</span><span class="lbl">${o.it}</span>
+        <span class="ordbtns">
+          <button type="button" class="up" aria-label="Subir ${o.it}">▲</button>
+          <button type="button" class="down" aria-label="Bajar ${o.it}">▼</button>
+        </span>`;
+      d.querySelector('.up').onclick=()=>moveItem(d,-1);
+      d.querySelector('.down').onclick=()=>moveItem(d,1);
+      wrap.appendChild(d);
+    });
+    body.appendChild(wrap);
+    renumber();
+    const btn=document.createElement('button');
+    btn.className='btn-main'; btn.textContent='✅ Validar orden'; btn.id='btn-validate';
+    btn.onclick=()=>checkOrder(q,isBoss);
+    actions.appendChild(btn);
+    const hint=document.createElement('span');
+    hint.style.cssText='color:var(--mut);font-size:13px;align-self:center';
+    hint.textContent='Usa ▲ ▼ para ordenar y luego valida.';
+    actions.appendChild(hint);
+  } else {
+    const opts=document.createElement('div');
+    opts.className='opts'+(q.t==='tf'?' tf':'');
+    const labels = q.t==='tf' ? ['Verdadero','Falso'] : q.o;
+    labels.forEach((txt,i)=>{
+      const b=document.createElement('button');
+      b.className='opt';
+      b.innerHTML = q.t==='tf'
+        ? `<span>${txt}</span>`
+        : `<span class="key">${i+1}</span><span>${txt}</span>`;
+      b.onclick=()=>checkMC(q,i,isBoss);
+      opts.appendChild(b);
+    });
+    body.appendChild(opts);
+  }
+  startTimer();
+}
+
+function moveItem(el,dir){
+  const wrap=document.getElementById('ordwrap');
+  if(!wrap) return;
+  const items=[...wrap.children];
+  const i=items.indexOf(el);
+  const j=i+dir;
+  if(j<0||j>=items.length) return;
+  if(dir<0) wrap.insertBefore(el,items[j]);
+  else wrap.insertBefore(items[j],el);
+  renumber();
+  el.querySelector('.up').focus();
+}
+function renumber(){
+  const wrap=document.getElementById('ordwrap');
+  if(!wrap) return;
+  [...wrap.children].forEach((c,i)=>{
+    c.querySelector('.num').textContent=i+1;
+    c.querySelector('.up').disabled = i===0;
+    c.querySelector('.down').disabled = i===wrap.children.length-1;
+  });
+}
+
+function startTimer(){
+  clearInterval(timerId);
+  tStart=Date.now();
+  const bar=document.getElementById('m-timerbar');
+  const wrap=document.getElementById('m-timerwrap');
+  let left=tLimit;
+  bar.style.width='100%';
+  wrap.classList.remove('low');
+  timerId=setInterval(()=>{
+    left-=0.1;
+    bar.style.width=Math.max(0,left/tLimit*100)+'%';
+    if(left<=10) wrap.classList.add('low');
+    if(left<=0){ clearInterval(timerId); timerId=null; }
+  },100);
+}
+function stopTimer(){
+  clearInterval(timerId); timerId=null;
+  return (Date.now()-tStart)/1000;
+}
+
+function checkMC(q,idx,isBoss){
+  if(S.answered) return;
+  const btns=[...document.querySelectorAll('#q-body .opt')];
+  btns.forEach(b=>b.disabled=true);
+  const ok = idx===q.a;
+  if(btns[q.a]) btns[q.a].classList.add('ok');
+  if(!ok && btns[idx]) btns[idx].classList.add('bad');
+  resolve(q,ok,isBoss);
+}
+
+function checkOrder(q,isBoss){
+  if(S.answered) return;
+  const items=[...document.querySelectorAll('#ordwrap .orditem')].map(e=>e.dataset.val);
+  const ok = JSON.stringify(items)===JSON.stringify(q.items);
+  document.querySelectorAll('#ordwrap .orditem').forEach((e,i)=>{
+    e.querySelectorAll('button').forEach(b=>b.disabled=true);
+    e.style.borderColor = (e.dataset.val===q.items[i]) ? 'var(--neon)' : 'var(--red)';
+  });
+  resolve(q,ok,isBoss);
+}
+
+function correctText(q){
+  if(q.t==='order') return q.items.join(' → ');
+  if(q.t==='tf') return q.a===0?'Verdadero':'Falso';
+  return q.o[q.a];
+}
+
+function resolve(q,ok,isBoss){
+  S.answered=true;
+  const t=stopTimer();
+  const fb=document.getElementById('q-fb');
+  fb.className='fb show '+(ok?'good':'bad');
+  const actions=document.getElementById('q-actions'); actions.innerHTML='';
+  S.total++; S.times.push(t);
+
+  const themeId = S.inFinal ? 'BF' : currentWorld().id;
+  S.themeHits[themeId].total++;
+
+  if(ok){
+    S.correct++; S.themeHits[themeId].ok++;
+    let pts, detail;
+    if(S.inFinal){
+      pts=100; detail='<span class="pts">+100 puntos</span>';
+    } else {
+      pts = 100*comboMult();
+      detail = `<span class="pts">+${Math.round(pts)}</span> base (combo ×${comboMult().toFixed(1)})`;
+      if(t<=30){ pts+=50; detail+=` · <span class="pts">+50</span> bonus de tiempo (${t.toFixed(1)} s)`; }
+      if(!S.usedHintThisQ){ pts+=25; detail+=` · <span class="pts">+25</span> sin pista`; }
+      if(isBoss){ pts+=200; detail+=` · <span class="pts">+200</span> reto jefe`; }
+    }
+    pts=Math.round(pts);
+    S.score+=pts;
+    S.combo++; S.maxCombo=Math.max(S.maxCombo,S.combo);
+    fb.innerHTML=`<b>✔ ¡Correcto!</b> ${detail}<div class="tip">💡 ${q.tip||''}</div>`;
+  } else {
+    S.combo=0;
+    S.lives--;
+    fb.innerHTML=`<b>✘ Incorrecto.</b> La respuesta correcta era: <b>${correctText(q)}</b>
+      ${S.inFinal?'':' · −1 vida ❤️'}<div class="tip">💡 ${q.tip||''}</div>`;
+  }
+  document.getElementById('m-lives').textContent='❤️'.repeat(Math.max(0,S.lives))+'🖤'.repeat(Math.max(0,3-S.lives));
+  updateHUD();
+
+  if(!ok && S.lives<=0){
+    const b=document.createElement('button');
+    b.className='btn-main'; b.textContent='↺ Reiniciar mundo';
+    b.onclick=()=>{
+      S.combo=0;
+      enterWorld(S.worldIdx);
+      toast('Mundo reiniciado. Conservas tu puntaje e insignias.');
+    };
+    actions.appendChild(b);
+    const b2=document.createElement('button');
+    b2.className='btn-ghost'; b2.textContent='← Salir al mapa';
+    b2.onclick=()=>{ renderMap(); go('s-map'); };
+    actions.appendChild(b2);
+    saveGame();
+    return;
+  }
+
+  const cont=document.createElement('button');
+  cont.className='btn-main';
+  const last = S.inFinal ? (S.finalIdx>=FINAL_BATTLE.length-1)
+                         : (S.inBoss===true);
+  cont.textContent = (S.inFinal && S.finalIdx>=FINAL_BATTLE.length-1) ? 'Ver mis resultados →'
+                    : last ? 'Continuar →' : 'Siguiente misión →';
+  cont.onclick=nextStep;
+  actions.appendChild(cont);
+  setTimeout(()=>cont.focus(),120);
+  saveGame();
+}
+
+function nextStep(){
+  const w=currentWorld();
+  if(S.inFinal){ finalNext(); return; }
+  if(!S.inBoss){
+    if(S.step < w.missions.length-1){ S.step++; showMission(); }
+    else { S.inBoss=true; S.step=w.missions.length; showMission(); }
+  } else {
+    if(!S.badges.includes(BADGE_DEFS[S.worldIdx].id)){
+      S.badges.push(BADGE_DEFS[S.worldIdx].id);
+      toast('🏅 Insignia obtenida: '+BADGE_DEFS[S.worldIdx].nm);
+    }
+    if(S.worldIdx < WORLD_DATA.length-1) S.worldIdx++;
+    saveGame(); renderMap(); go('s-map');
+  }
+}
+
+function useHint(){
+  if(S.hints<=0){ toast('Ya no te quedan pistas en este mundo.'); return; }
+  if(S.answered){ toast('Esta pregunta ya fue respondida.'); return; }
+  const q = S.inFinal ? FINAL_BATTLE[S.finalIdx]
+          : (S.inBoss ? currentWorld().boss : currentWorld().missions[S.step]);
+  S.hints--; S.hintsUsed++; S.usedHintThisQ=true;
+  if(!S.inFinal && !S.inBoss && !S.inFinal && S.score>=25) S.score-=25;
+  document.getElementById('m-hints').textContent=S.hints;
+  document.getElementById('btn-hint').disabled=S.hints<=0;
+  const fb=document.getElementById('q-fb');
+  fb.className='fb show hint';
+  const hintText = q.hint || (q.tip ? 'Pista: ' + q.tip.split('.')[0] + '.' : 'Revisa los conceptos clave del tema.');
+  fb.innerHTML=`<b>💡 Pista (coste: −25 puntos)</b>
+    <div class="tip" style="color:#e6edf7;font-size:14px;margin-top:6px">${hintText}</div>
+    <div class="tip">Usar la pista desactiva el bonus de eficiencia (+25) en esta pregunta. No pierdes vidas.</div>`;
+  updateHUD();
+  saveGame();
+}
+
+function confirmExit(){
+  if(confirm('¿Salir al mapa? El progreso de este mundo se reiniciará si vuelves a entrar.')){
+    renderMap(); go('s-map');
+  }
+}
+
+/* ==================== BATALLA FINAL ==================== */
+function startFinal(){
+  S.inFinal=true; S.finalIdx=0; S.lives=3;
+  showFinal();
+}
+function showFinal(){
+  document.getElementById('m-world').textContent='⚔️ Batalla Final vs. Glitch';
+  document.getElementById('m-step').textContent=(S.finalIdx+1)+'/5';
+  document.getElementById('m-lives').textContent='❤️'.repeat(Math.max(0,S.lives))+'🖤'.repeat(Math.max(0,3-S.lives));
+  document.getElementById('m-hints').textContent='0';
+  document.getElementById('btn-hint').disabled=true;
+  document.getElementById('m-progress').style.width=(S.finalIdx/5*100)+'%';
+  go('s-mission');
+  renderQuestion(FINAL_BATTLE[S.finalIdx],false,'Batalla Final · Reto '+(S.finalIdx+1)+' de 5');
+}
+function finalNext(){
+  S.finalIdx++;
+  if(S.finalIdx<FINAL_BATTLE.length){ showFinal(); }
+  else {
+    if(!S.badges.includes('final')) S.badges.push('final');
+    clearSave();
+    showResults();
+  }
+}
+
+/* ==================== RESULTADOS ==================== */
+function medalOf(score){
+  if(score>=6001) return {medal:'Leyenda del Código', ic:'👑', sub:'Dominio excepcional: integraste los cinco temas y superaste la Batalla Final.'};
+  if(score>=4001) return {medal:'Guardián', ic:'🛡️', sub:'Sólido dominio de la mayoría de los temas. Revisa los ejes con menor precisión.'};
+  return {medal:'Explorador', ic:'🧭', sub:'Buen inicio: sigue explorando el reino del código y vuelve a intentarlo.'};
+}
+
+function showResults(){
+  const acc = S.total? Math.round(S.correct/S.total*100):0;
+  const avg = S.times.length? (S.times.reduce((a,b)=>a+b,0)/S.times.length):0;
+  const m = medalOf(S.score);
+
+  document.getElementById('r-icon').textContent=m.ic;
+  document.getElementById('r-medal').textContent=m.medal;
+  document.getElementById('r-sub').textContent=m.sub;
+  document.getElementById('r-player').textContent = S.player ? ('Guardían: '+S.player) : '';
+  document.getElementById('r-score').textContent=S.score;
+  document.getElementById('r-acc').textContent=acc+'%';
+  document.getElementById('r-time').textContent=avg.toFixed(1)+'s';
+  document.getElementById('r-hints').textContent=S.hintsUsed;
+
+  const bg=document.getElementById('r-badges'); bg.innerHTML='';
+  BADGE_DEFS.forEach(b=>{
+    if(S.badges.includes(b.id)){
+      const d=document.createElement('div'); d.className='badge';
+      d.textContent=b.ic+' '+b.nm; bg.appendChild(d);
+    }
+  });
+  if(!bg.children.length) bg.innerHTML='<div class="badge">Aún sin insignias — vuelve a intentarlo</div>';
+
+  const tm=document.getElementById('r-thememap'); tm.innerHTML='';
+  const rows=[...WORLD_DATA.map(w=>({id:w.id,nm:w.wm,ac:w.accent})),{id:'BF',nm:'Batalla Final (integrado)',ac:'#fbbf24'}];
+  rows.forEach(r=>{
+    const h=S.themeHits[r.id];
+    const p=h.total? Math.round(h.ok/h.total*100):0;
+    const div=document.createElement('div'); div.className='tmrow';
+    div.innerHTML=`<span class="lbl">${r.nm}</span>
+      <span class="track"><i style="width:${p}%;background:${r.ac}"></i></span>
+      <span class="pct">${p}% (${h.ok}/${h.total})</span>`;
+    tm.appendChild(div);
+  });
+
+  // Retroalimentación pedagógica automática
+  const weakest=rows.filter(r=>S.themeHits[r.id].total>0)
+    .sort((a,b)=>{
+      const pa=S.themeHits[a.id].ok/S.themeHits[a.id].total;
+      const pb=S.themeHits[b.id].ok/S.themeHits[b.id].total;
+      return pa-pb;
+    })[0];
+  const strongest=rows.filter(r=>S.themeHits[r.id].total>0)
+    .sort((a,b)=>{
+      const pa=S.themeHits[a.id].ok/S.themeHits[a.id].total;
+      const pb=S.themeHits[b.id].ok/S.themeHits[b.id].total;
+      return pb-pa;
+    })[0];
+  document.getElementById('r-feedback').innerHTML =
+    `<b>Retroalimentación automática:</b> tu mayor fortaleza fue <b>${strongest?strongest.nm:'—'}</b>. ` +
+    `El tema que conviene reforzar es <b>${weakest?weakest.nm:'—'}</b>. ` +
+    `Consejo: relee las explicaciones (💡) de las preguntas falladas y repite el mundo con menor precisión.`;
+  go('s-results');
+}
+
+/* ==================== REPORTE DESCARGABLE ==================== */
+function downloadReport(){
+  const acc=S.total?Math.round(S.correct/S.total*100):0;
+  const avg=S.times.length?(S.times.reduce((a,b)=>a+b,0)/S.times.length).toFixed(1):'0';
+  const m=medalOf(S.score);
+  const rows=[...WORLD_DATA.map(w=>({nm:w.wm,id:w.id})),{nm:'Batalla Final',id:'BF'}]
+    .map(r=>{
+      const h=S.themeHits[r.id];
+      const p=h.total?Math.round(h.ok/h.total*100):0;
+      return `<tr><td>${r.nm}</td><td>${p}%</td><td>${h.ok}/${h.total}</td></tr>`;
+    }).join('');
+  const badges = S.badges.map(id=>{const b=BADGE_DEFS.find(x=>x.id===id);return b?b.ic+' '+b.nm:id;}).join(' · ')||'—';
+  const fecha = new Date().toLocaleDateString('es-GT',{day:'2-digit',month:'long',year:'numeric'});
+
+  const html=`<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">
+<title>Reporte de aprendizaje – ByteQuest</title>
+<style>
+ body{font-family:Arial,Helvetica,sans-serif;color:#111;padding:38px;max-width:760px;margin:auto}
+ h1{color:#0a7a2f;margin:0 0 2px;font-size:23px} h2{font-size:15px;border-bottom:2px solid #0a7a2f;padding-bottom:4px;margin-top:24px}
+ table{border-collapse:collapse;width:100%;margin-top:8px}
+ th,td{border:1px solid #bfbfbf;padding:7px 9px;font-size:13px;text-align:left}
+ th{background:#eef7f0} .big{font-size:30px;font-weight:bold;color:#0a7a2f;margin-top:6px}
+ .muted{color:#666;font-size:11.5px;line-height:1.5}
+ .kpi{display:inline-block;margin:10px 24px 0 0} .kpi b{display:block;font-size:20px;color:#0a7a2f}
+ .lic{margin-top:26px;border-top:1px solid #ccc;padding-top:10px}
+ @media print{ body{padding:12px} }
+</style></head><body>
+<h1>${LIC.title}</h1>
+<div class="muted">Reporte de aprendizaje · ${S.player?('Estudiante: <b>'+S.player+'</b> · '):''}${fecha}</div>
+
+<h2>Resultado final</h2>
+<div class="big">${m.ic} ${m.medal}</div>
+<div class="muted">${m.sub}</div>
+<div class="kpi"><b>${S.score}</b>Puntaje total</div>
+<div class="kpi"><b>${acc}%</b>Precisión global</div>
+<div class="kpi"><b>${avg}s</b>Tiempo medio</div>
+<div class="kpi"><b>${S.hintsUsed}</b>Pistas usadas</div>
+<div class="kpi"><b>${S.badges.length}/6</b>Insignias</div>
+
+<h2>Mapa de temas dominados</h2>
+<table><tr><th>Tema</th><th>Precisión</th><th>Aciertos</th></tr>${rows}</table>
+
+<h2>Insignias obtenidas</h2><p>${badges}</p>
+
+<h2>Rúbrica formativa</h2>
+<table><tr><th>Nivel</th><th>Criterio</th><th>Puntaje</th></tr>
+<tr><td>Explorador</td><td>1–2 temas con precisión ≥ 70 %</td><td>Hasta 4 000</td></tr>
+<tr><td>Guardián</td><td>3–4 temas con precisión ≥ 80 %</td><td>4 001–6 000</td></tr>
+<tr><td>Leyenda del Código</td><td>5 temas con precisión ≥ 90 % y Batalla Final superada</td><td>≥ 6 001</td></tr></table>
+
+<div class="lic">
+  <div class="muted">
+    <b>${LIC.title}</b> © ${LIC.year}, ${LIC.owner}. Distribuido bajo licencia
+    <b>Creative Commons Atribución-CompartirIgual 4.0 Internacional (CC BY-SA 4.0)</b>.
+    Para ver una copia de esta licencia visita ${LIC.url}<br>
+    Reporte generado automáticamente por el recurso gamificado ByteQuest. Los datos se procesaron localmente en el navegador del estudiante.
+  </div>
+</div>
+</body></html>`;
+
+  const blob=new Blob([html],{type:'text/html;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const w=window.open(url,'_blank');
+  if(w){
+    setTimeout(()=>{ try{ w.print(); }catch(e){} },800);
+    toast('Se abrió el reporte: elige «Guardar como PDF» en el diálogo de impresión.');
+  } else {
+    const a=document.createElement('a');
+    a.href=url; a.download='Reporte_ByteQuest.html'; a.click();
+    toast('Descarga iniciada: abre el archivo e imprímelo como PDF.');
+  }
+}
+
+/* ==================== GUARDADO LOCAL ==================== */
+const SAVE_KEY='bytequest_v2_save';
+function saveGame(){
+  try{
+    localStorage.setItem(SAVE_KEY, JSON.stringify({
+      player:S.player, score:S.score, badges:S.badges, worldIdx:S.worldIdx,
+      hintsUsed:S.hintsUsed, correct:S.correct, total:S.total, times:S.times,
+      themeHits:S.themeHits, maxCombo:S.maxCombo, ts:Date.now()
+    }));
+  }catch(e){}
+}
+function clearSave(){ try{ localStorage.removeItem(SAVE_KEY); }catch(e){} }
+function loadGame(){
+  try{
+    const raw=localStorage.getItem(SAVE_KEY);
+    if(!raw) return false;
+    const d=JSON.parse(raw);
+    Object.assign(S,{
+      player:d.player||'', score:d.score||0, badges:d.badges||[], worldIdx:d.worldIdx||0,
+      hintsUsed:d.hintsUsed||0, correct:d.correct||0, total:d.total||0,
+      times:d.times||[], maxCombo:d.maxCombo||0, inFinal:false, inBoss:false, step:0,
+      lives:3, hints:2, combo:0
+    });
+    if(d.themeHits) S.themeHits=Object.assign(S.themeHits,d.themeHits);
+    renderMap(); go('s-map');
+    toast('Partida restaurada: continúa en '+WORLD_DATA[Math.min(S.worldIdx,WORLD_DATA.length-1)].name);
+    return true;
+  }catch(e){ return false; }
+}
+
+/* ==================== TECLADO Y ARRANQUE ==================== */
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){
+    const m=document.getElementById('name-modal');
+    if(m && m.style.display!=='none'){ m.style.display='none'; }
+  }
+  if(!document.getElementById('s-mission').classList.contains('on')) return;
+  if(S.answered) return;
+  const tag=document.activeElement?document.activeElement.tagName:'';
+  if(tag==='INPUT'||tag==='TEXTAREA') return;
+  if(['1','2','3','4'].includes(e.key)){
+    const btns=[...document.querySelectorAll('#q-body .opt')];
+    const i=Number(e.key)-1;
+    if(btns[i]){ e.preventDefault(); btns[i].click(); }
+  }
+});
+
+document.addEventListener('DOMContentLoaded',()=>{
+  renderMap();
+  let saved=false;
+  try{ saved=!!localStorage.getItem(SAVE_KEY); }catch(e){}
+  if(saved){
+    const row=document.querySelector('#s-start .cta-row');
+    if(row && !document.getElementById('btn-continue')){
+      const b=document.createElement('button');
+      b.id='btn-continue'; b.className='btn-ghost';
+      b.textContent='↻ Continuar partida guardada';
+      b.onclick=()=>{ if(!loadGame()) toast('No se pudo restaurar la partida.'); };
+      row.appendChild(b);
+    }
+  }
+});
+
+/* exponer para pruebas automatizadas */
+window.__BQ = {S, WORLD_DATA, FINAL_BATTLE, BADGE_DEFS, comboMult, startGame, enterWorld,
+  showResults, medalOf, renderMap, checkMC, checkOrder, resolve, useHint, moveItem, LIC};
+</script>
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/vce701823e78c4301a35b7e07294d87301792088814092" integrity="sha512-UKNk8GbxkABxKcXYuLkO16EleLGUkcvJWtpSNmExE0Too3ZaFAxTscNWEc1OdAv5/BikHawapSCaiD2XCmp+Bw==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","spa":2}' crossorigin="anonymous"></script>
+</body>
+</html>
